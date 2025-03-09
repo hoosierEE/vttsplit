@@ -1,2 +1,4 @@
 * vttsplit
 Split vtt files and give them new timestamps using [[https://wiki.k-language.dev/wiki/Ngn/k][K]].
+
+NOTE: some video software is picky about VTT file formats - in this case I copied the source material which uses "\r\n\r\n" between segments within a file, and the whole file ends with the shorter "\r\n\r".

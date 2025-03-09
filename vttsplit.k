@@ -19,23 +19,20 @@ cut:("00:00:00 --> 00:21:55"
 
 read:{2_0:x}  /x:"/path/to/filename.vtt"
 tidy:{-1_.=x!(#x)#!3}
-
 (stamp;text):tidy read arg
 
 sec:{(24 60 60/`I$":"\*"."\)'" --> "\x}  /parse timestamps to seconds "01:03:46.000 --> 01:03:53.000" becomes (3826 3833)
 ces:{(":"/(-2#"0",)'$24 60 60\x),".000"} /inv(sec): "01:03:46.000" ~ ces[3826]
 
 (start;end):+sec'cut
-starts:(*&)'start<\:*+sec'stamp
-ends:(*&)'end<\:*+sec'stamp
 secstamp:*+sec'stamp
+starts:(*&)'start<\:secstamp
+ends:(*&)'end<\:secstamp
 s:start<\:secstamp /start mask
-e:end>\:secstamp /end mask
-mask:&'e&s  /start and end masks overlap
+e:end>\:secstamp   /end mask
+mask:&'e&s         /start and end masks overlap
 (stamp2;text2):(stamp;text^'"\r")@\:mask
-/reset:{({x,"\r\n"}@" --> "/ces@')''{x-*'*'x}@sec''x} /make sections start at 00:00:00.000
 reset:{({x,"\r\n"}@" --> "/ces@')''(sec''x)-*+sec'cut} /make sections start at 00:00:00.000
 vtts:+'+(reset stamp2;text2)
-
 texts:{("WEBVTT\r\n\r\n","\r\n\r\n"/,/'x),"\r\n\r"}'vtts  /format line endings
 {(((-4_arg),"-cut",$y),".vtt")0:x}'[texts;1+!#texts];  /write files using 1.vtt, 2.vtt, 3.vtt, ... etc.
