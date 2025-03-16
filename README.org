@@ -2,3 +2,14 @@
 Split vtt files and give them new timestamps using [[https://wiki.k-language.dev/wiki/Ngn/k][K]].
 
 NOTE: some video software is picky about VTT file formats - in this case I copied the source material which uses "\r\n\r\n" between segments within a file, and the whole file ends with the shorter "\r\n\r".
+
+* Usage
+Expected timestamp format is one start/end pair per line, with a hyphen between start and end. Here's a concrete example with two timestamps and a vtt file named =temp.vtt=:
+
+#+begin_src shell
+cat <<'EOF' | ./vttsplit.k /path/to/transcript.vtt
+00:00-04:37
+04:39-06:20
+06:25-06:47
+EOF
+#+end_src
