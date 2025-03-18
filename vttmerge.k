@@ -8,11 +8,6 @@ given a name.vtt file and a list of start/end points, find:
 5. adjust clip so it begins where previous clip ends
 6. format and write new name-merge.vtt file
 \
-/test data
-/ vttfile:"/Users/alexshroyer/Downloads/timestamps/Relapse Prevention/GMT20250310-165845_Recording.cc.vtt"
-/ cut:("00:00 --> 00:59";"01:45 --> 05:19";"5:21 --> 07:23";"07:31 --> 07:51")
-
-/actual data
 (vttfile;rest):(*x;1_x)  /filename is only cli arg
 cut:0:0                  /timestamps come from stdin
 cut:(" --> "/"-"\)'cut   /format timestamps from "t1-t2" to "t1 --> t2"
