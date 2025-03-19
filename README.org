@@ -1,10 +1,21 @@
 * vttsplit
-Split vtt files and give them new timestamps using [[https://wiki.k-language.dev/wiki/Ngn/k][K]].
+Split, merge, and concatenate vtt files and adjust timestamps using [[https://wiki.k-language.dev/wiki/Ngn/k][K]].
 
-NOTE: some video software is picky about VTT file formats - in this case I copied the source material which uses "\r\n\r\n" between segments within a file, and the whole file ends with the shorter "\r\n\r".
+* Motivation
+If you use a service like Zoom to automatically caption your videos, you get two files at the end: the video file and a caption file with the extension =.vtt=.
+But the trouble is when you make edits to your video, the captions aren't edited to match. If you remove large chunks of the video the captions will stop matching after the first cut.
+
+Similarly if you want to split a video into standalone shorter segments, there's still just one caption file and the timestamps no longer match.
+
+/NOTE: some video software is picky about VTT file formats - in this case I copied the source material which uses =\r\n\r\n= between segments within a file, and the whole file ends with the shorter =\r\n\r=./
 
 * Usage
-Expected timestamp format is one start/end pair per line, with a hyphen between start and end. Here's a concrete example with two timestamps and a vtt file named =temp.vtt=:
+There are 3 utility scripts:
+- =vttcat.k file1 file2= - adjust =file2='s timestamps so they start when =file1= ends, write result to =out.vtt=
+- =cat stamps | vttmerge.k file= - cut =file= at the given =stamps= and stitch back into a new =out.vtt=
+- =cat stamps | vttsplit.k file= - cut =file= at the given =stamps= and write multiple files (=out1.vtt=, =out2.vtt=,...) for each cut
+
+Expected timestamp format is one start/end pair per line, with a hyphen between start and end. Here's a concrete example showing how to use =vttsplit.k= with three timestamps and one vtt file named =transcript.vtt=:
 
 #+begin_src shell
 cat <<'EOF' | ./vttsplit.k /path/to/transcript.vtt
@@ -13,3 +24,5 @@ cat <<'EOF' | ./vttsplit.k /path/to/transcript.vtt
 06:25-06:47
 EOF
 #+end_src
+
+This copies =transcript.vtt= into 3 pieces corresponding to each clip. The new files will have names like =transcript-cut1.vtt=, =transcript-cut2.vtt= and so on. Each new =-cutN.vtt= file begins at =00:00:00.000=. You can then pair these files with their respective video clips.
