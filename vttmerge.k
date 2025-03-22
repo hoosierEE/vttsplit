@@ -8,31 +8,39 @@ given a name.vtt file and a list of start/end points, find:
 5. adjust clip so it begins where previous clip ends
 6. format and write new name-merge.vtt file
 \
-(vttfile;rest):(*x;1_x)  /filename is only cli arg
+vttfile:*x  /filename is only cli arg
 cut:0:0                  /timestamps come from stdin
-cut:(" --> "/"-"\)'cut   /format timestamps from "t1-t2" to "t1 --> t2"
 
-read:{2_0:x}  /x:"/path/to/filename.vtt"
-tidy:{-1_.=x!(#x)#!3}
-(stamp;text):tidy read vttfile
+
+cut:(" --> "/"-"\)'cut   /format timestamps from "t1-t2" to "t1 --> t2"
+read:{+0N 2#{x@&-1<x}'1_((0:x)^'"\r")^,""}
+(stamp;text):read vttfile
 
 sec:{(24 60 60/-3#0,`I$":"\*"."\)'" --> "\x}  /sec["01:03:46.000 --> 01:03:53.000"] ⇒ (3826 3833)
 ces:{(":"/(-2#"0",)'$24 60 60\x),".000"}      /ces[3826] ⇒ "01:03:46.000"
 
 (start;end):+sec'cut
-secstamp:*+sec'stamp
-starts:(*&)'start<\:secstamp
-ends:(*&)'end<\:secstamp
-s:start<\:secstamp            /start mask
-e:end>\:secstamp              /end mask
-mask:&'e&s                    /start and end masks overlap
+(s0;s1):+sec'stamp
+overlap:(start<\:s0)&~end<\:s0                   /drop overlapping segemnts
+shstamp:sec''stamp@&'overlap                     /stamps in shape of clips
+shstamp:(0N 2#)'(start,'(1_-1_,/)'shstamp),'end  /apply start/end cut logic
+offset:+\0,1_*+0N 2#-':,/((*:;*|:)@\:,/)'shstamp /accumulate gaps between start/end of each clip
 
-(stamp2;text2):(stamp;text^'"\r")@\:mask                   /uniform line endings
+mask:{x@&~=':x}@,/&'overlap
 
-se2:sec''stamp2
-ns:" --> "/'ces'',/se2-*'{x*0,1_(#x)#1}@-1_(0,+\#'se2)_*+0N 2#-':,//se2
-vtts:+(ns;,/text2)                                         /merge times and combine with text
-join:"\r\n\r\n"/"\r\n"/'vtts                       /join nested sections with CRLF
+ns:,/(shstamp-offset)-+\0,1_*+0N 2#-':,/((*:;*|:)@\:,/)'shstamp-offset
+ns:,/shstamp-offset  /new timestamps
+nt:text mask                           /new text
+vtts:+(" --> "/'ces''ns;nt)
+
+join:"\r\n\r\n"/"\r\n"/'vtts           /join nested sections with CRLF
 
 rename:{"."/@["."\x;0;{x,"-cut"}]}
 {(rename y) 0:"WEBVTT\r\n\r\n",x,"\r\n\r"}[join;vttfile]
+
+/
+cast of characters: katie is behind - cut a-b should keep caption that starts at b
+relapse prevention: katie is ahead
+the bubble: katie is ahead
+obsessional sequence: no caption at 9:54 should say "Here's our learning checkpoint", but no caption until 10:12 (and here are wrong words) and Katie is ahead at the very end
+\
